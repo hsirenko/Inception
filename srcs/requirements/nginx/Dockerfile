@@ -6,7 +6,7 @@
 #    By: hsirenko <hsirenko@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/04 19:32:56 by hsirenko          #+#    #+#              #
-#    Updated: 2025/03/04 19:33:20 by hsirenko         ###   ########.fr        #
+#    Updated: 2025/03/06 14:17:30 by hsirenko         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -29,7 +29,10 @@ RUN apt-get update && apt-get install -y apt-utils
 RUN mkdir -p /etc/nginx/ssl
 
 # Generate SSL certificates using OpenSSL
-RUN openssl req -x509 -nodes -out /etc/nginx/ssl/inception.crt -keyout /etc/nginx/ssl/inception.key -subj "/C=FR/ST=IDF/L=Paris/O=42/OU=42/CN=hsirenko.42.fr/UID=hsirenko"
+RUN openssl req -x509 -nodes \ 
+-subj "/C=FR/ST=IDF/L=Paris/O=42/OU=42/CN=hsirenko.42.fr/UID=hsirenko" \
+-out /etc/ssl/certs/inception.crt \
+-keyout /etc/ssl/private/inception.key
 
 # Folder to store nginx config files
 RUN mkdir -p /var/run/nginx
@@ -39,15 +42,16 @@ RUN rm -f /etc/nginx/nginx.conf
 # Copy custom nginx.conf to container
 COPY conf/nginx.conf /etc/nginx/nginx.conf
 
+#Adding rights to user to edit html folder
 RUN chmod 755 /var/www/html
 RUN chown -R www-data:www-data /var/www/html
-#RUN chmod -R +x /setup_nginx.sh
 
-EXPOSE 443
+
+#EXPOSE 443
 
 #ENTRYPOINT ["sh", "setup_nginx.sh"]
 # Ensure www-data user and group exist (skip if already created)
-RUN groupadd -f www-data && useradd -g www-data -m -d /var/www/html www-data
+#RUN groupadd -f www-data && useradd -g www-data -m -d /var/www/html www-data
 
 # Create the directory, set permissions, and change ownership
 RUN mkdir -p /var/www/html \
